@@ -1,43 +1,30 @@
 package woocommerce
 
 import (
-	"encoding/json"
-	"io"
 	"testing"
 )
 
-var (
-	store      = "http://"
-	ck         = ""
-	cs         = ""
-	orderCount = 0
-)
+func TestClientWithDefaultParams(t *testing.T) {
+	client, err := NewClient("http://example.tld", "", "", nil)
 
-/*
-func TestClient(t *testing.T) {
-	if store == "" || ck == "" || cs == "" {
-		t.Fatal("Information needed")
-	}
-	client, err := NewClient(store, ck, cs, nil)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("Unexpected error on valid input")
 	}
-	body, err := client.Get("orders", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	jsonDecoder := json.NewDecoder(body)
-	var data map[string]interface{}
-	if err := jsonDecoder.Decode(&data); err != nil && err != io.EOF {
-		t.Fatal(err)
-	}
-	defer body.Close()
-	orders, ok := data["orders"]
-	if !ok {
-		t.Fatal("Wrong return format")
-	}
-	if orderCount != len(orders.([]interface{})) {
-		t.Fatal("Wrong count of orders")
+
+	if str := client.storeURL.String(); str != "http://example.tld/wp-json/wc/v2/" {
+		t.Fatalf("Unexpected value for storeURL, got '%s'", str)
 	}
 }
-*/
+
+
+func TestClientWithDifferentVersion(t *testing.T) {
+	client, err := NewClient("http://example.tld", "", "", &Options{Version: "v3"})
+
+	if err != nil {
+		t.Fatal("Unexpected error on valid input")
+	}
+
+	if str := client.storeURL.String(); str != "http://example.tld/wp-json/wc/v3/" {
+		t.Fatalf("Unexpected value for storeURL, got '%s'", str)
+	}
+}
