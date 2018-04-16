@@ -2,6 +2,7 @@ package woocommerce
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha1"
@@ -110,7 +111,7 @@ func (c *Client) oauthSign(method, endpoint, params string) string {
 	return base64.StdEncoding.EncodeToString(signatureBytes)
 }
 
-func (c *Client) request(method, endpoint string, params url.Values, data interface{}) (io.ReadCloser, error) {
+func (c *Client) request(ctx context.Context, method, endpoint string, params url.Values, data interface{}) (io.ReadCloser, error) {
 	urlstr := c.storeURL.String() + endpoint
 	if params == nil {
 		params = make(url.Values)
@@ -138,7 +139,7 @@ func (c *Client) request(method, endpoint string, params url.Values, data interf
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	resp, err := c.rawClient.Do(req)
+	resp, err := c.rawClient.Do(req.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -151,22 +152,22 @@ func (c *Client) request(method, endpoint string, params url.Values, data interf
 	return resp.Body, nil
 }
 
-func (c *Client) Post(endpoint string, data interface{}) (io.ReadCloser, error) {
-	return c.request("POST", endpoint, nil, data)
+func (c *Client) Post(ctx context.Context, endpoint string, data interface{}) (io.ReadCloser, error) {
+	return c.request(ctx, "POST", endpoint, nil, data)
 }
 
-func (c *Client) Put(endpoint string, data interface{}) (io.ReadCloser, error) {
-	return c.request("PUT", endpoint, nil, data)
+func (c *Client) Put(ctx context.Context, endpoint string, data interface{}) (io.ReadCloser, error) {
+	return c.request(ctx, "PUT", endpoint, nil, data)
 }
 
-func (c *Client) Get(endpoint string, params url.Values) (io.ReadCloser, error) {
-	return c.request("GET", endpoint, params, nil)
+func (c *Client) Get(ctx context.Context, endpoint string, params url.Values) (io.ReadCloser, error) {
+	return c.request(ctx, "GET", endpoint, params, nil)
 }
 
-func (c *Client) Delete(endpoint string, params url.Values) (io.ReadCloser, error) {
-	return c.request("POST", endpoint, params, nil)
+func (c *Client) Delete(ctx context.Context, endpoint string, params url.Values) (io.ReadCloser, error) {
+	return c.request(ctx, "POST", endpoint, params, nil)
 }
 
-func (c *Client) Options(endpoint string) (io.ReadCloser, error) {
-	return c.request("OPTIONS", endpoint, nil, nil)
+func (c *Client) Options(ctx context.Context, endpoint string) (io.ReadCloser, error) {
+	return c.request(ctx, "OPTIONS", endpoint, nil, nil)
 }
