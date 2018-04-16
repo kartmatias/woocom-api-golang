@@ -50,12 +50,12 @@ func NewClient(store, ck, cs string, option *Options) (*Client, error) {
 	if option.Version == "" {
 		option.Version = "v2"
 	}
-	path := "/wp-json/wc/"
+	path := "/wp-json/wc"
 	if option.API {
 		path = option.APIPrefix
 	}
-	path = path + option.Version + "/"
-	storeURL.Path = path
+
+	storeURL.Path = path + "/" + option.Version
 
 	rawClient := http.DefaultClient
 
@@ -119,7 +119,7 @@ func (c *Client) oauthSign(method, endpoint, params string) string {
 }
 
 func (c *Client) request(ctx context.Context, method, endpoint string, params url.Values, data interface{}) (io.ReadCloser, error) {
-	urlstr := c.storeURL.String() + endpoint
+	urlstr := c.storeURL.String() + "/" + strings.TrimLeft(endpoint, "/")
 	if params == nil {
 		params = make(url.Values)
 	}
