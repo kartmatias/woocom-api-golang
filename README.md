@@ -1,13 +1,15 @@
 # WooCommerce API - Golang Client
 
 A Golang wrapper for the WooCommerce REST API. Easily interact with the WooCommerce REST API using this library.
+This is a fork of `mikespook/wc-api-golang`. Main difference: get/post/put/delete accepts context and package uses
+`http.DefaultClient` and `http.DefaultTransport`.
 
-[![build status](https://secure.travis-ci.org/mikespook/wc-api-golang.svg)](http://travis-ci.org/mikespook/wc-api-golang)
+This lib is **not** backward compatible with mikespook/wc-api-golang`!
 
 ## Installation
 
 ```bash
-$ go get github.com/mikespook/wc-api-golang/woocommerce
+$ go get github.com/darh/wc-api-golang/woocommerce
 ```
 
 ## Getting started
@@ -23,7 +25,7 @@ Setup for the new WP REST API integration (WooCommerce 2.6 or later):
 
 ```golang
 import (
-  wc "github.com/mikespook/wc-api-golang/woocommerce"
+  wc "github.com/darh/wc-api-golang/woocommerce"
 )
 
 var woocommerce = wc.NewClient(
@@ -69,31 +71,31 @@ var woocommerce = wc.NewClient(
 ### GET
 
 ```golang
-rc, err := woocommerce.Get(endpoint, parameters)
+rc, err := woocommerce.Get(ctx, endpoint, parameters)
 ```
 
 ### POST
 
 ```golang
-rc, err := woocommerce.Post(endpoint, data)
+rc, err := woocommerce.Post(ctx, endpoint, data)
 ```
 
 ### PUT
 
 ```golang
-rc, err := woocommerce.Put(endpoint, data)
+rc, err := woocommerce.Put(ctx, endpoint, data)
 ```
 
 ### DELETE
 
 ```golang
-rc, err := woocommerce.Delete(endpoint, parameters)
+rc, err := woocommerce.Delete(ctx, endpoint, parameters)
 ```
 
 ### OPTIONS
 
 ```golang
-rc, err := woocommerce.Options(endpoint)
+rc, err := woocommerce.Options(ctx, endpoint)
 ```
 
 #### Response
