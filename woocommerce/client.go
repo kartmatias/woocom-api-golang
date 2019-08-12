@@ -141,7 +141,10 @@ func (c *Client) request(ctx context.Context, method, endpoint string, params ur
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, urlstr, body)
+	req, err := http.NewRequest(method, urlstr, nil)
+	if method != http.MethodGet {
+		req, err = http.NewRequest(method, urlstr, body)
+	}
 	if err != nil {
 		return nil, err
 	}
