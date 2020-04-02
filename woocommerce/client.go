@@ -118,21 +118,30 @@ func (c *Client) oauthSign(method, endpoint, params string) string {
 	return base64.StdEncoding.EncodeToString(signatureBytes)
 }
 
-func (c *Client) request(ctx context.Context, method, endpoint string, params url.Values, data interface{}) (io.ReadCloser, error) {
+func (c *Client) newRequest(method, endpoint string, params url.Values, data interface{}) (*http.Request, error) {
 	urlstr := c.storeURL.String() + "/" + strings.TrimLeft(endpoint, "/")
 	if params == nil {
 		params = make(url.Values)
 	}
-	if c.storeURL.Scheme == "https" {
-		urlstr += "?" + c.basicAuth(params)
-	} else {
-		urlstr += "?" + c.oauth(method, urlstr, params)
+
+	var dlmtr = "?"
+	if strings.ContainsAny(urlstr, "?&") {
+		dlmtr = "&"
 	}
+
+	if c.storeURL.Scheme == "https" {
+		urlstr += dlmtr + c.basicAuth(params)
+	} else {
+		urlstr += dlmtr + c.oauth(method, urlstr, params)
+	}
+
 	switch method {
-	case http.MethodPost, http.MethodPut:
-	case http.MethodDelete, http.MethodGet, http.MethodOptions:
+	case http.MethodGet:
+		return http.NewRequest(method, urlstr, nil)
+
+	case http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions:
 	default:
-		return nil, fmt.Errorf("Method is not recognised: %s", method)
+		return nil, fmt.Errorf("method is not recognised: %s", method)
 	}
 
 	body := new(bytes.Buffer)
@@ -141,13 +150,15 @@ func (c *Client) request(ctx context.Context, method, endpoint string, params ur
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, urlstr, nil)
-	if method != http.MethodGet {
-		req, err = http.NewRequest(method, urlstr, body)
-	}
+	return http.NewRequest(method, urlstr, body)
+}
+
+func (c *Client) request(ctx context.Context, method, endpoint string, params url.Values, data interface{}) (io.ReadCloser, error) {
+	req, err := c.newRequest(method, endpoint, params, data)
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.rawClient.Do(req.WithContext(ctx))
 	if err != nil {
