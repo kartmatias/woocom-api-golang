@@ -9,7 +9,7 @@ This lib is **not** backward compatible with mikespook/wc-api-golang`!
 ## Installation
 
 ```bash
-$ go get github.com/darh/wc-api-golang/woocommerce
+$ go get github.com/kartmatias/woocom-api-golang/woocommerce
 ```
 
 ## Getting started
@@ -25,7 +25,7 @@ Setup for the new WP REST API integration (WooCommerce 2.6 or later):
 
 ```golang
 import (
-  wc "github.com/darh/wc-api-golang/woocommerce"
+  wc "github.com/kartmatias/woocom-api-golang/woocommerce"
 )
 
 var woocommerce = wc.NewClient(
